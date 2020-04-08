@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  drone-server:
+    container_name: drone_server
+    image: drone/drone:1
+    ports:
+      - 8080:80
+    volumes:
+      - /var/lib/drone:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    environment:
+      - DRONE_GITHUB_SERVER=https://github.com
+      - DRONE_GITHUB_CLIENT_ID=<enter github client id here>
+      - DRONE_GITHUB_CLIENT_SECRET=<enter github client secret here>
+      - DRONE_AGENTS_ENABLED=true
+      - DRONE_RPC_SECRET=<create a secret key>
+      - DRONE_SERVER_HOST=<url for the drone server>
+      - DRONE_SERVER_PROTO=https
+      - DRONE_TLS_AUTOCERT=true
+      - DRONE_USER_CREATE=username:<your github username>,admin:true
+      - DRONE_LOGS_TRACE=true
+      - DRONE_LOGS_PRETTY=true
+      - DRONE_LOGS_COLOR=true
+
+  drone-agent:
+    container_name: drone_agent
+    image: drone/agent:1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    environment:
+      - DRONE_RPC_HOST=drone-server
+      - DRONE_RPC_SECRET=<same secret as in the drone-server config above>
+      - DRONE_RUNNER_CAPACITY=1
+      - DRONE_RUNNER_NAME=<creative name for your build agent>
+      - DRONE_LOGS_TRACE=true
+      - DRONE_LOGS_PRETTY=true
+      - DRONE_LOGS_COLOR=true
